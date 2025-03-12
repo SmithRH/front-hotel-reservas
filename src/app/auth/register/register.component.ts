@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'
+import { Component } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'
 import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
 
@@ -10,19 +10,54 @@ import { Router } from '@angular/router';
   styleUrl: './register.component.css'
 })
 export class RegisterComponent {
-  fb =  inject(FormBuilder);
-  authService = inject(AuthService);
-  router = inject(Router);
 
-  form = this.fb.group({
-    username: ['', [Validators.required, Validators.pattern(/^[^\s]+$/)]],
-    email: ['', [Validators.required, Validators.email]],
-    name: ['', [Validators.required, Validators.pattern(/^[^\s]+$/)]],
-    surname: ['', [Validators.required, Validators.pattern(/^[^\s]+$/)]],
-    password: ['', Validators.required],
-    gender: ['', Validators.required],
-    phone: ['', [Validators.required, Validators.minLength(9), Validators.maxLength(15), Validators.pattern(/^\d+$/)]]
-  });
+  form: FormGroup<{
+    email: FormControl<string | null>;
+    name: FormControl<string | null>;
+    surname: FormControl<string | null>;
+    password: FormControl<string | null>;
+    gender: FormControl<string | null>;
+    doc_type: FormControl<string | null>;
+    doc_number: FormControl<string | null>;
+    phone: FormControl<string | null>;
+  }>;
+
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
+
+    this.form = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      name: ['', [Validators.required, Validators.pattern(/^[^\s]+$/)]],
+      surname: ['', [Validators.required, Validators.pattern(/^[^\s]+$/)]],
+      password: ['', Validators.required],
+      gender: ['', Validators.required],
+      doc_type: ['', Validators.required],
+      doc_number: ['', Validators.required],
+      phone: ['', [Validators.required, Validators.minLength(9), Validators.maxLength(15), Validators.pattern(/^\d+$/)]]
+    });
+
+    this.setupDynamicDocValidation();
+  }
+
+  private setupDynamicDocValidation(): void {
+    this.form.get('doc_type')?.valueChanges.subscribe((docType) => {
+      const docNumberControl = this.form.get('doc_number');
+
+      if (docNumberControl) {
+        // Se limpian las validaciones previas
+        docNumberControl.clearValidators();
+
+        // Se crean nuevas validaciones por cada tipo de documento
+        if (docType === 'dni') {
+          docNumberControl.setValidators([Validators.required, Validators.pattern(/^\d{8}$/)]);
+        } else if (docType === 'carne_extranjeria') {
+          docNumberControl.setValidators([Validators.required, Validators.pattern(/^\d{9}$/)]);
+        } 
+
+        // Forzar la re-evaluación de validaciones
+        docNumberControl.updateValueAndValidity();
+      }
+    });
+  }
 
   handleSubmit(): void {
     if (this.form.valid) {

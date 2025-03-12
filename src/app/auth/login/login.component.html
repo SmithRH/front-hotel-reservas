@@ -1,26 +1,33 @@
 <div class="container">
     <h2>Iniciar Sesión</h2>
     <form [formGroup]="form" (ngSubmit)="handleSubmit()">
-        <label for="credential">Usuario o Correo Electrónico</label>
+        <label for="credential">Credencial</label>
         <input type="text" id="credential" formControlName="credential" required>
         @if (this.form.controls.credential.invalid && this.form.controls.credential.errors?.["formFailed"] === true) {
             @if (this.form.controls.credential.errors?.["required"]) {
                 <span>Este campo es obligatorio</span>
             }
-            @if (this.form.controls.credential.errors?.["pattern"]) {
-                <span>Ingrese un credencial válido</span>
+            @if (this.form.controls.credential.errors?.["email"] && this.form.controls.loginMethod.value === "email") {
+                <span>Ingrese un email válido</span>
+            }
+            @if (this.form.controls.credential.errors?.["pattern"] && this.form.controls.loginMethod.value === "dni") {
+                <span>Ingrese un número de DNI válido</span>
+            }
+            @if (this.form.controls.credential.errors?.["pattern"] && this.form.controls.loginMethod.value === "carne_extranjeria") {
+                <span>Ingrese un número de carné de extranjería válido</span>
             }
         }
 
         <label for="loginMethod">Método de Inicio de Sesión</label>
         <select id="loginMethod" name="loginMethod" formControlName="loginMethod" required>
-            <option value="username">Nombre de Usuario</option>
             <option value="email">Correo Electrónico</option>
+            <option value="dni">DNI</option>
+            <option value="carne_extranjeria">Carné de Extranjería</option>
         </select>
         @if (this.form.controls.loginMethod.invalid && this.form.controls.loginMethod.errors?.["formFailed"] === true) {
             @if (this.form.controls.loginMethod.errors?.["required"]) {
                 <span>Este campo es obligatorio</span>
-            }
+            }           
         }
 
         <label for="password">Contraseña</label>
