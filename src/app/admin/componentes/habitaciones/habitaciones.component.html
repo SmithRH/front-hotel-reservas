@@ -1,0 +1,8 @@
+<div class="results">
+    <!-- paso de dato del componente padre  al padre hijo -->
+    <app-habitaciones-details
+    *ngFor="let habitacion of habitaciones"
+    [habitacion]="habitacion"
+    ></app-habitaciones-details>
+
+</div>
