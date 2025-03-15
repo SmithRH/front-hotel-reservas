@@ -40,6 +40,9 @@ export const routes: Routes = [
     {
         path: '**',
         redirectTo: 'main'
+    },
+    {
+        path:'admin',
+        loadChildren: ()=> import('./admin/admin.routes')
     }
-
-]
+];
